@@ -1,0 +1,33 @@
+import plotfile
+import pso2
+import ga2
+import abc2
+print("Enter algorithm")
+algo=raw_input()
+
+
+if(algo=="pso"):
+ print("enter alpha")
+ alpha=input()
+ print("enter beta")
+ beta=input()
+
+
+ pso2.main(beta,alpha)
+
+elif(algo=="ga"):
+ print("enter generations")
+ generations=input()
+
+ ga2.main(generations)
+
+elif(algo=="abc"):
+ print("enter colony size")
+ colonysize=input()
+ print("enter steps")
+ steps=input()
+ abc2.main(colonysize,steps)
+
+
+elif(algo=="plot"):
+ plotfile.main()
