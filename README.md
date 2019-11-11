@@ -1,5 +1,6 @@
 # Capacitated-vehicle-routing-problem-with-time-windows
 Used genetic,particle swarm and ant bee colony algorithm
+
 We have picked Vehicle routing problem as our project which is a NP-hard problem .The VRP has many obvious applications in industry. In fact, the use of computer optimization programs can give savings of 5% to a company as transportation is usually a significant component of the cost of a product.
 We were inspired by this problem because of the challenges we saw that the various delivery agents have to come across with. Customers nowadays prefer to order only from those sites where they will get their delivery on time. To survive in such a competitive market, a company must have an optimized delivery system.
 To save their time and for good customer satisfaction, they need to identify an optimized route for delivery. Some algorithms consider either only cost or deliver goods according to the dates on which customer ordered.
