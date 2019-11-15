@@ -1,8 +1,7 @@
 # Capacitated-vehicle-routing-problem-with-time-windows
 Used GENETIC,PARTICLE SWARM and ANT BEE COLONY algorithm
 
-We have picked Vehicle routing problem as our project which is a NP-hard problem .The VRP has many obvious applications in industry. In fact, the use of computer optimization programs can give savings of 5% to a company as transportation is usually a significant component of the cost of a product.
-We were inspired by this problem because of the challenges we saw that the various delivery agents have to come across with. Customers nowadays prefer to order only from those sites where they will get their delivery on time. To survive in such a competitive market, a company must have an optimized delivery system.
+I have picked Vehicle routing problem as my project which is a NP-hard problem .The VRP has many obvious applications in industry. In fact, the use of computer optimization programs can give savings of 5% to a company as transportation is usually a significant component of the cost of a product.I was inspired by this problem because of the challenges we saw that the various delivery agents have to come across with. Customers nowadays prefer to order only from those sites where they will get their delivery on time. To survive in such a competitive market, a company must have an optimized delivery system.
 To save their time and for good customer satisfaction, they need to identify an optimized route for delivery. Some algorithms consider either only cost or deliver goods according to the dates on which customer ordered.
 We will be using nature inspired algorithms to find an optimized route which, in addition to cost between various cities takes into account the time delay cost also, if the delivery agent is tardy in delivering the product. 
 
@@ -68,6 +67,7 @@ The fitness function is calculated as the inverse of cost. More the fitness func
 Then we select the best 50 chromosomes among these 100 chromosomes and best 50 undergoes the same process for next generation
 Each generation prints the best route calculated, its cost and its fitness function value.
 We continue the process for 50 generations
+
 Selection of fittest chromosomes
 We are using a combination of tournament and stochastic solution for selecting best parents among 50 chromosomes to undergo crossover and mutation.
 In K-Way tournament selection, we select K individuals from the population at random and select the best out of these to become a parent. The same process is repeated for selecting the next parent. We are using first 10-way tournament selection on our population
@@ -79,45 +79,7 @@ Implementation wise, we used the following steps
     • The individual for which P exceeds S is the chosen individual.
 
 
-PARTICLE  SWARM  OPTIMIZATION
-Particle swarm optimization (PSO) is a population based stochastic optimization technique developed by Dr. Eberhart and Dr. Kennedy in 1995, inspired by social behaviour of bird flocking or fish schooling.
-PSO simulates the behaviours of bird flocking. Suppose the following scenario: a group of birds are randomly searching food in an area. There is only one piece of food in the area being searched. All the birds do not know where the food is. But they know how far the food is in each iteration. So what's the best strategy to find the food? The effective one is to follow the bird which is nearest to the food.
 
-PSO learned from the scenario and used it to solve the optimization problems. In PSO, each single solution is a "bird" in the search space. We call it "particle". All of particles have fitness values which are evaluated by the fitness function to be optimized, and have velocities which direct the flying of the particles. The particles fly through the problem space by following the current optimum particles.
-PSO is initialized with a group of random particles (solutions) and then searches for optima by updating generations. In every iteration, each particle is updated by following two "best" values. The first one is the best solution (fitness) it has achieved so far. (The fitness value is also stored.) This value is called pbest. Another "best" value that is tracked by the particle swarm optimizer is the best value, obtained so far by any particle in the population. This best value is a global best and called gbest. When a particle takes part of the population as its topological neighbors, the best value is a local best and is called lbest.
- 
- After finding the two best values, the particle updates its velocity and positions with following equations
-
-v[t] = v[t-1] + c1 *rand() * (pbest - x[t-1]) + c2 * rand() * (gbest x[t-1]) 
-
-x[t] = x[t-1] + v[t] 
-
-VELOCITY OF PARTICLE
-The velocity of particle is represented as a tuple of 3 constraints i.e
-V(swap operator ,c1 ,c2)
-Where, c1 and c2 are the probability of finding a particle and values lie between 0 and 1.
-POSITION UPDATE
-x(t)  =  x(t-1) + v(t)
-
-Example:
-(3,1,2,4,5) = (1,3,2,4,5) + SO(1,2) 
-VELOCITY UPDATE
-v[new] = v[old] + c1 * rand() * (pbest[] - x[]) + c2 * rand() * (gbest[] - x[]) 
-i.e merging two swap sequences
-the probability that all the swap operators in swap sequence (pbest –x(t-1)) are include in the updated velocity is c1.
-the probability that all the swap operators in swap sequence (gbest –x(t-1)) are include in the updated velocity is c2.
-PSEUDO CODE
--Random initialization of possible path
--For each time step:
-    Update gbest
-    Update pbest
-     For each city
-v[t] = v[t-1] + c1 * rand() * (pbest[] - x[]) + c2 * rand() * (gbest[] - x[]) 
-
-x[t] = x[t-1] + v[t] 
-
-CALCULATING COST
-The cost is calculated as same as in genetic algorithm by considering the penalties for time delay.
 
 Our instances description
 1) 36 customers and 6 vehicles
