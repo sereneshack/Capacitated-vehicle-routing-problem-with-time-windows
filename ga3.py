@@ -3,7 +3,7 @@ import random as random
 from geopy.distance import geodesic
 import math
 from matplotlib import pyplot as plt
-
+import time
 
 def findindex(obj,p2,popsize):
     
@@ -65,78 +65,6 @@ def mutation(p1,popsize):
  ptemp=ptemp+xtra
  return ptemp
 
-
-def calculatecost(p1,popsize):
- totalcost=0
- #print(p1)
- for i in range(popsize-2):
-        c=p1[i]
-        d=p1[i+1]
-        c=c-12341
-        d=d-12341
-        c = int(c) 
-        d = int(d) 
-        #print(c)
-        #print(d)
-        loc1=(latitude[c],longitude[c])
-        loc2=(latitude[d],longitude[d])
-        b=(geodesic(loc1,loc2).km)
-
-        totalcost=totalcost+b 
-
- 
- 
- return totalcost
-
-def calculatefitness(x):
- return 1/x
-
-
-
-def selectchromosomes(ga,ganew50):
- tempga = np.zeros((50,popsize))
- no=50
-
- for i in range(no):
-  if(i>24):
-   gatemp[i]=ganew50[i]
-  else:
-   gatemp[i]=ga[i]
- return tempga
-
-def calculatefinal(lastbest,popsize):
- 
- j=0
- penaltycost=0
- for i in range(int(vehicleno)):
-   #cap=int(capacity)
-   
-   print("Vehicle number",i+1," ==>")
-   cap=capacity[i]
-   count=0
-   while(cap>0):
-      custindex=lastbest[j]
-      custid=int(custindex)
-      custindex=int(custindex)-12341
-      check=cap-int(amtordered[custindex])
-      if(check<0):
-          break
-      
-      if(count>1):
-         if(int(time[custindex])==0):
-             penaltycost=penaltycost+penalty[custindex]
-      
-      cap=cap-int(amtordered[custindex])
-      print(custid,"--",amtordered[custindex],"--")
-      j=j+1
-      p=popsize-1
-      if(j>p):
-        break
-      count=count+1
-   if(j>p):
-      break
- return penaltycost
-
     
 def selection(ga,popsize):
   number=50
@@ -154,9 +82,9 @@ def selection(ga,popsize):
   bestwo = np.zeros((2,popsize))
   sum=0
   for i in range(size):
-      cost=calculatecost(array[k],popsize)
-      obj=calculatefitness(cost)
-      fitness.append(obj)   
+      array[k]=array[k].astype(int)
+      f,cost=calculatecost(array[k],popsize)
+      fitness.append(f)   
       sum=sum+fitness[k]
       k=k+1
   fixedpoint=random.uniform(0,sum)
@@ -193,9 +121,9 @@ def selectionformutation(ga,popsize):
   bestone = np.zeros((1,popsize))
   sum=0
   for i in range(size):
-      cost=calculatecost(array[k],popsize)
-      obj=calculatefitness(cost)
-      fitness.append(obj)   
+      f,cost=calculatecost(array[k],popsize)
+      array[k]=array[k].astype(int)
+      fitness.append(f)   
       sum=sum+fitness[k]
       k=k+1
   fixedpoint=random.uniform(0,sum)
@@ -216,26 +144,68 @@ def selectionformutation(ga,popsize):
      bestone[1]=array[2]
   return bestone 
 
+def selectchromosomes(ga,ganew50):
+  number=50
+  size=10
+  array = np.zeros((10,popsize))
+  a = np.random.randint(50, size =10)
+  k=0
+  for i in  range(size):
+    index=a[k] 
+    array[i]=ga[index]
+    k=k+1  
+  
+  fitness=[]
+  k=0
+  bestfifty = np.zeros((1,popsize))
+  sum=0
+  for i in range(size):
+      f,cost=calculatecost(array[k],popsize)
+      array[k]=array[k].astype(int)
+      fitness.append(f)   
+      sum=sum+fitness[k]
+      k=k+1
+  fixedpoint=random.uniform(0,sum)
+  partialsum=0
+  k=0
+  count=0
+  p=0
+  m=0
+  for i in range(size):
+     if(count==1):
+       break
+     partialsum=partialsum+fitness[k]
+     k=k+1
+     if(partialsum>fixedpoint):
+         bestfifty[p]=array[i]
+         count=count+1
+         p=p+1
+  if(count==0):
+     bestfifty[m]=array[2]
+     m=m+1
+  return bestfifty 
+  
 
 def plot(lastbest, line_width=1, point_radius=math.sqrt(2.0), annotation_size=8, dpi=120, save=True, name=None):
         
         
         lastbes=[]
-        for i in range(customerno-1):
-            obj=int(lastbest[i])
-            
-            lastbes.append(obj-12341)
         
-        x = [latitude[i] for i in sorted(lastbes)]
-        x.append(x[0])
-        y = [longitude[i] for i in sorted(lastbes)]
-        y.append(y[0])
+        x= np.zeros(customerno, dtype = int)
+        k=0
+        for i in lastbest:
+          x[k]=latitude[i-1]
+          k=k+1
+        y= np.zeros(customerno, dtype = int)
+        u=0
+        for i in lastbest:
+          y[u]=longitude[i-1]
+          u=u+1
         plt.plot(x, y, linewidth=line_width)
         plt.scatter(x, y, s=math.pi * (point_radius ** 2.0))
-        
         n=[]
         for i in range(customerno-1):
-            n.append(i+1+12341)
+            n.append(i+1)
         for i, txt in enumerate(n):
             plt.annotate(txt, (x[i], y[i]))
         if save:
@@ -243,27 +213,106 @@ def plot(lastbest, line_width=1, point_radius=math.sqrt(2.0), annotation_size=8,
             plt.savefig(name, dpi=dpi)
         plt.show()
         plt.gcf().clear()
+
+def assignvehicles(p1,capacity,maxvehicles,demand,readytime,duedate,servicetime):
+ customerno=101
+ route = np.zeros((maxvehicles+1,customerno))
+ for i in range(maxvehicles):
+     currentcapacity[i]=capacity
+      
+ curveh=1
+ p1=p1.astype(int)
+ customerno=100
+ for i in range(customerno):
+   
+   ide=p1[i]
+   assigned=0
+   demand=demand.astype(int)
+   dem=demand[ide-1]
+   curveh=1
+  
+   while(assigned!=1):
+     
+     
+     if dem<currentcapacity[curveh][0] and elapsedtime[curveh][0]<duedate[ide-1]:
+        popsize=customerno
+        i1=findindex(0,route[curveh],popsize)
+        route[curveh][i1]=ide
+        elapsedtime[curveh][0]=elapsedtime[curveh][0]+readytime[ide-1]+servicetime[ide-1]
+        currentcapacity[curveh][0]=currentcapacity[curveh][0]-dem
+        assigned=1
+        route=route.astype(int)
+     if(curveh<20):
+      curveh=curveh+1
+     else:
+      break
+ print("route")
+ print(route)
+
+ return route
+
+def calculatedistcost(route,popsize):
+ distancecost=0
+ 
+ 
+ for i in range(maxvehicles):
+   subroute=route[i]
+   j=0
+   c=subroute[j]
+   d=subroute[j+1]
+        
+        
+   c = int(c) 
+   d = int(d) 
+   loc1=(latitude[c-1],longitude[c-1])
+   loc2=(latitude[d-1],longitude[d-1])
+   b=(geodesic(loc1,loc2).km)
+   distancecost=distancecost+b
+ 
+ return distancecost
+
+def fitnessfunction(elapsedtime,distancecost):
+  timecost=np.sum(elapsedtime)
+  a=np.random.dirichlet(np.ones(2),size=1)
+  totalcost=distancecost+timecost
+  return a[0][0]*timecost+a[0][1]*distancecost,totalcost
+
+
+def calculatecost(p1,customerno):
+   for i in range(maxvehicles):
+     elapsedtime[i]=0
+   route=assignvehicles(p1,capacity,maxvehicles,demand,readytime,duedate,servicetime)
+   distancecost=calculatedistcost(route,customerno)
+   f,totalcost=fitnessfunction(elapsedtime,distancecost)
+   return f,totalcost
  
 '''main function'''
 import numpy as np
 import xlrd
-loc=("/home/sakshi/minorpro2/instance1.xlsx")
+loc=("/home/sakshi/minorpro3/instance2.xlsx")
 wb=xlrd.open_workbook(loc)
 sheet=wb.sheet_by_index(0)
+maxvehicles=20
+capacity=200
 customerno=sheet.nrows-1
-print(customerno)
 
 idno=[]
+elapsedtime = np.zeros((maxvehicles+1,1))
+currentcapacity = np.zeros((maxvehicles+1,1))
+
 
 for i in range(customerno+1):
   if(i!=0):
     obj1=sheet.cell_value(i,0)
+    obj1=int(obj1)
     idno.append (obj1)
 latitude=[]
 longitude=[]
-amtordered=[]
-penalty=[]
-time=[]
+demand= np.zeros(customerno, dtype = int) 
+readytime=[]
+duedate= np.zeros(customerno, dtype = int)
+route = np.zeros((maxvehicles+1,customerno))
+servicetime=[]
 for i in range(customerno+1):
   if(i!=0):
     obj1=sheet.cell_value(i,1)
@@ -272,35 +321,36 @@ for i in range(customerno+1):
   if(i!=0):
     obj1=sheet.cell_value(i,2)
     longitude.append (obj1)
+k=0
 for i in range(customerno+1):
   if(i!=0):
     obj1=sheet.cell_value(i,3)
-    amtordered.append (obj1)
+    demand[k]=obj1
+    k=k+1
 for i in range(customerno+1):
   if(i!=0):
     obj1=sheet.cell_value(i,4)
-    time.append (obj1)
+    readytime.append (obj1)
+
+po=0
+for i in range(customerno+1):
+  if(i!=0):
+    obj1=sheet.cell_value(i,5)
+    duedate[po]=obj1
+    po=po+1
+
 for i in range(customerno+1):
   if(i!=0):
     obj1=sheet.cell_value(i,6)
-    penalty.append (obj1)
-
-vehicleno=sheet.cell_value(1,5)
-capacity=[]
-
-l=1
-vehicleno=int(vehicleno)
-for i in range(vehicleno):
-    obj1=sheet.cell_value(l,7)
-    capacity.append (obj1)
-    l=l+1
+    servicetime.append (obj1)
 
 
 
 def main(generations):
+ print(customerno)
 
  flag=0        
- #generations=10
+ 
 
  for t in range(generations):
   print("\n\ngeneration number==")
@@ -310,7 +360,7 @@ def main(generations):
   op=2
   b=[]
   b=idno
-
+  
   if(flag==0):
    ga = np.zeros((50,popsize))
   else:
@@ -321,10 +371,14 @@ def main(generations):
     for i in range(op):
       for j in range(popsize):
          if (i==0):
+           a[j]=int(a[j])
+         
            c[i][j]=a[j]
          else:
+           b[j]=int(b[j])
            c[i][j]=b[j]
-
+    c=c.astype(int)
+    
     for i in range(popsize): 
      for j in range(0, popsize-i-1): 
   
@@ -344,8 +398,10 @@ def main(generations):
      
   
   print("initial 50 chromosomes generated\n")
+  ga=ga.astype(int)
   print(ga)
   ganew50 = np.zeros((iters,popsize))
+  ganew50=ganew50.astype(int)
 
   crossover_population=40
   for i in range(crossover_population):
@@ -363,39 +419,40 @@ def main(generations):
    
   print("\nNew 50 chromosomes matrix after mutation and crossover\n")
   print(ganew50)
-
+  
 
   print("\n\ncalculating cost of all chromosomes\n")
 
   costof100chromo=np.zeros(100)
   no=100
   m=0
- 
- 
+  fitnessof100chromo=np.zeros(100)
+  ga=ga.astype(int)
+  ganew50=ganew50.astype(int)
+  print(ga)
+  print(ganew50)
   for i in range(no):
    cost=0
    if(i>49):
-    cost=calculatecost(ganew50[m],popsize)
+    f,cost=calculatecost(ganew50[m],popsize)
     m=m+1
     costof100chromo[i]=cost
+    fitnessof100chromo[i]=f
 
    else:
    
-    cost=calculatecost(ga[i],popsize)
+    f,cost=calculatecost(ga[i],popsize)
     costof100chromo[i]=cost
+    fitnessof100chromo[i]=f
 
   print(costof100chromo)
 
   print("\nfitness of all chromosomes\n")
-  fitnessof100chromo=np.zeros(100)
-
-  for i in range(no):
-   fitnessof100chromo[i]=calculatefitness(costof100chromo[i])
-
+  
 
  
   print(fitnessof100chromo)
-  bestelement=max(fitnessof100chromo)
+  bestelement=min(fitnessof100chromo)
   i1=findindex(bestelement,fitnessof100chromo,100)
   print("\nbest fitness is=>")
   print(bestelement)
@@ -416,18 +473,13 @@ def main(generations):
      lastbest=ga[i1]
 
 
- print(lastbest)
- finalcost=calculatefinal(lastbest,customerno)
- ffinalcost=finalcost+lastcost
- print("AND THE FINAL COST FOR OUR SOLUTION IS",ffinalcost)
+ lastbest=lastbest.astype(int)
+ f,finalcost=calculatecost(lastbest,popsize)
+ 
+ print("AND THE FINAL COST FOR OUR SOLUTION IS",finalcost)
  plot(lastbest)
-
-
-   
-
-
-
-
+ 
+ return lastbest
 
 
 
