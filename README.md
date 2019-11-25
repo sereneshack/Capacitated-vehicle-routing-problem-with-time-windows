@@ -1,5 +1,5 @@
 # Capacitated-vehicle-routing-problem-with-time-windows
-Used GENETIC,PARTICLE SWARM and ANT COLONY OPTIMISATION AND HYBRID OF ACO AND PSO algorithm
+Used GENETIC,PARTICLE SWARM(PSO) and ANT COLONY OPTIMISATION(ACO) AND HYBRID OF ACO AND PSO algorithm
 
 We will be hybridizing different nature inspired algorithms and will be comparing costs and computational time for all datasets. 
 Different applications involve: 
