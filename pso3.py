@@ -4,6 +4,7 @@ import numpy as np
 import math
 from geopy.distance import geodesic
 from matplotlib import pyplot as plt
+import time
 
 
 class Graph:
@@ -26,15 +27,13 @@ class Graph:
     def showGraph(self):
         print('DISTANCES BETWEEN VARIOUS CITIES:\n')
         for edge in self.edges:
-            print('distance btw %d and %d -> %d' % (edge[0], edge[1], self.edges[edge]))
+           print('distance btw %d and %d -> %d' % (edge[0], edge[1], self.edges[edge]))
 
     def calculatecost(self,i,j):
      totalcost = 0
 
      c = i
      d = j
-     c = c - 12341
-     d = d - 12341
      c = int(c)
      d = int(d)
 
@@ -45,9 +44,8 @@ class Graph:
      totalcost = totalcost + b
 
      return totalcost
-
     def getCostPath(self, path):
-
+     print(path)
      total_cost = 0
      self.amount_vertices = customerno-1
      for i in range(customerno - 2):
@@ -145,12 +143,12 @@ class PSO:
         solutions = self.graph.getRandomPaths(self.size_population)
 
         for solution in solutions:
-            particle = Particle(solution=solution, cost=graph.getCostPath(solution))
-
+            particle = Particle(solution=solution, cost=calculatefinal(solution,customerno))
+            self.amount_vertices = customerno-1
             self.particles.append(particle)
 
         self.size_population = len(self.particles)
-
+     
     def setGBest(self, new_gbest):
         self.gbest = new_gbest
 
@@ -168,22 +166,27 @@ class PSO:
 
     def plot(self, line_width=1, point_radius=math.sqrt(2.0), annotation_size=8, dpi=120, save=True, name=None):
         
+        
         finalpath=[]
         for i in self.getGBest().getPBest():
            obj=int(i)
-           obj=obj-12341
            finalpath.append(obj)
-        
-        x = [latitude[i] for i in sorted(finalpath)]
-        x.append(x[0])
-        y = [longitude[i] for i in sorted(finalpath)]
-        y.append(y[0])
+        x= np.zeros(customerno-1, dtype = int)
+        k=0
+        for i in finalpath:
+          x[k]=latitude[i-1]
+          k=k+1
+        y= np.zeros(customerno-1, dtype = int)
+        u=0
+        for i in finalpath:
+          y[u]=longitude[i-1]
+          u=u+1
+        print(x)
         plt.plot(x, y, linewidth=line_width)
         plt.scatter(x, y, s=math.pi * (point_radius ** 2.0))
-        
         n=[]
         for i in range(customerno-1):
-            n.append(i+1+12341)
+            n.append(i+1)
         for i, txt in enumerate(n):
             plt.annotate(txt, (x[i], y[i]))
         if save:
@@ -191,6 +194,20 @@ class PSO:
             plt.savefig(name, dpi=dpi)
         plt.show()
         plt.gcf().clear()
+    def animate(i):
+        x = np.linspace(0, 2, 1000)
+        y = np.sin(2 * np.pi * (x - 0.01 * i))
+        line.set_data(x, y)
+        return line,
+
+
+        anim = animation.FuncAnimation(fig, animate, init_func=init,
+        frames=200, interval=20, blit=True)
+
+
+        anim.save('basic_animation.mp4', fps=30, extra_args=['-vcodec', 'libx264'])
+
+        plt.show()
     def run(self):
 
         for t in range(self.iterations):
@@ -203,10 +220,9 @@ class PSO:
                 temp_velocity = []
                 solution_gbest = copy.copy(self.gbest.getPBest())
                 solution_pbest = particle.getPBest()[:]
-                solution_particle = particle.getCurrentSolution()[
-                                    :]
-
-                for i in range(self.graph.amount_vertices):
+                solution_particle = particle.getCurrentSolution()[:]
+                
+                for i in range(self.graph.amount_vertices-3):
                     if solution_particle[i] != solution_pbest[i]:
                         swap_operator = (i, solution_pbest.index(solution_particle[i]), self.alfa)
 
@@ -216,7 +232,7 @@ class PSO:
                         solution_pbest[swap_operator[0]] = solution_pbest[swap_operator[1]]
                         solution_pbest[swap_operator[1]] = aux
 
-                for i in range(self.graph.amount_vertices):
+                for i in range(self.graph.amount_vertices-3):
                     if solution_particle[i] != solution_gbest[i]:
                         swap_operator = (i, solution_gbest.index(solution_particle[i]), self.beta)
 
@@ -243,102 +259,143 @@ class PSO:
                 if cost_current_solution < particle.getCostPBest():
                     particle.setPBest(solution_particle)
                     particle.setCostPBest(cost_current_solution)
-                # particle.calculatefinal(particle.getPbest)
-def calculatefinal(lastbest,popsize):
- 
-        j=0
-        penaltycost=0
-        for i in range(int(vehicleno)):
- 
+                
+def findindex(obj,p2,popsize):
+    
+    for j in range(popsize):
+      if(p2[j]==obj):
+        return j
+def assignvehicles(p1,capacity,maxvehicles,demand,readytime,duedate,servicetime):
+ customerno=101
+ route = np.zeros((maxvehicles+1,customerno))
+ for i in range(maxvehicles):
+     currentcapacity[i]=capacity
+      
+ curveh=1
+ customerno=100
+ for i in range(customerno):
    
-           print("Vehicle number",i+1," ==>")
-           cap=capacity[i]
-           count=0
-           while(cap>0):
-              custindex=lastbest[j]
-              custid=int(custindex)
-              custindex=int(custindex)-12341
-              check=cap-int(amtordered[custindex])
-              if(check<0):
-                 break
-      
-              if(count>1):
-                 if(int(time[custindex])==0):
-                    penaltycost=penaltycost+penalty[custindex]
-      
-              cap=cap-int(amtordered[custindex])
-              print(custid,"--",amtordered[custindex],"--")
-              j=j+1
-              p=popsize-1
-              if(j>p):
-                 break
-              count=count+1
-           if(j>p):
-               break
-        return penaltycost
+   ide=p1[i]
+   assigned=0
+   demand=demand.astype(int)
+   dem=demand[ide-1]
+   curveh=1
+  
+   while(assigned!=1):
+     
+     
+     if dem<currentcapacity[curveh][0] and elapsedtime[curveh][0]<duedate[ide-1]:
+        popsize=customerno
+        i1=findindex(0,route[curveh],popsize)
+        route[curveh][i1]=ide
+        elapsedtime[curveh][0]=elapsedtime[curveh][0]+readytime[ide-1]+servicetime[ide-1]
+        currentcapacity[curveh][0]=currentcapacity[curveh][0]-dem
+        assigned=1
+        route=route.astype(int)
+     if(curveh<20):
+      curveh=curveh+1
+     else:
+      break
+ print("route")
+ print(route)
+
+ return route
 
 
+   
 
-import xlrd
-
-
-loc = ("/home/sakshi/minorpro2/instance1.xlsx")
-
+def calculatedistcost(route,popsize):
+ distancecost=0
  
-wb = xlrd.open_workbook(loc)
-sheet = wb.sheet_by_index(0)
+ 
+ for i in range(maxvehicles):
+   subroute=route[i]
+   j=0
+   c=subroute[j]
+   d=subroute[j+1]
+        
+        
+   c = int(c) 
+   d = int(d) 
+   loc1=(latitude[c-1],longitude[c-1])
+   loc2=(latitude[d-1],longitude[d-1])
+   b=(geodesic(loc1,loc2).km)
+   distancecost=distancecost+b
+ 
+ return distancecost
 
-customerno = sheet.nrows - 1
+def calculatefinal(p1,customerno):
+   
+   for i in range(maxvehicles):
+     elapsedtime[i]=0
+   route=assignvehicles(p1,capacity,maxvehicles,demand,readytime,duedate,servicetime)
+   distancecost=calculatedistcost(route,customerno)
+   timecost=np.sum(elapsedtime)
+   totalcost=distancecost+timecost
+   
+   return totalcost
 
-idno = []
 
-for i in range(customerno + 1):
-         if (i != 0):
-            obj1 = sheet.cell_value(i, 0)
-            idno.append(obj1)
-latitude = []
-longitude = []
-amtordered = []
-penalty = []
-time = []
+import numpy as np
+import xlrd
+loc=("/home/sakshi/minorpro3/instance2.xlsx")
+wb=xlrd.open_workbook(loc)
+sheet=wb.sheet_by_index(0)
+maxvehicles=20
+capacity=200
+customerno=sheet.nrows-1
 
-for i in range(customerno + 1):
-         if (i != 0):
-            obj1 = sheet.cell_value(i, 1)
-            latitude.append(obj1)
-for i in range(customerno + 1):
-         if (i != 0):
-            obj1 = sheet.cell_value(i, 2)
-            longitude.append(obj1)
-for i in range(customerno + 1):
-         if (i != 0):
-            obj1 = sheet.cell_value(i, 3)
-            amtordered.append(obj1)
-for i in range(customerno + 1):
-         if (i != 0):
-            obj1 = sheet.cell_value(i, 4)
-            time.append(obj1)
-for i in range(customerno + 1):
-         if (i != 0):
-            obj1 = sheet.cell_value(i, 6)
-            penalty.append(obj1)
+idno=[]
+elapsedtime = np.zeros((maxvehicles+1,1))
+currentcapacity = np.zeros((maxvehicles+1,1))
 
-vehicleno = sheet.cell_value(1, 5)
-vehicleno=sheet.cell_value(1,5)
-capacity=[]
 
-l=1
-vehicleno=int(vehicleno)
-for i in range(vehicleno):
-       obj1=sheet.cell_value(l,7)
-       capacity.append (obj1)
-       l=l+1
+for i in range(customerno+1):
+  if(i!=0):
+    obj1=sheet.cell_value(i,0)
+    obj1=int(obj1)
+    idno.append (obj1)
+latitude=[]
+longitude=[]
+demand= np.zeros(customerno, dtype = int) 
+readytime=[]
+duedate= np.zeros(customerno, dtype = int)
+route = np.zeros((maxvehicles+1,customerno))
+servicetime=[]
+for i in range(customerno+1):
+  if(i!=0):
+    obj1=sheet.cell_value(i,1)
+    latitude.append (obj1)
+for i in range(customerno+1):
+  if(i!=0):
+    obj1=sheet.cell_value(i,2)
+    longitude.append (obj1)
+k=0
+for i in range(customerno+1):
+  if(i!=0):
+    obj1=sheet.cell_value(i,3)
+    demand[k]=obj1
+    k=k+1
+for i in range(customerno+1):
+  if(i!=0):
+    obj1=sheet.cell_value(i,4)
+    readytime.append (obj1)
 
-c=sheet.nrows-1
+po=0
+for i in range(customerno+1):
+  if(i!=0):
+    obj1=sheet.cell_value(i,5)
+    duedate[po]=obj1
+    po=po+1
 
-def main(beta,alpha):
+for i in range(customerno+1):
+  if(i!=0):
+    obj1=sheet.cell_value(i,6)
+    servicetime.append (obj1)
+
+def main(beta,alpha,it):
      
-     
+     print(customerno)
      graph = Graph(amount_vertices=sheet.nrows)
      i=0
      j=0
@@ -348,7 +405,7 @@ def main(beta,alpha):
              graph.addEdge(idno[i],idno[j],graph.calculatecost(idno[i],idno[j]))
      graph.showGraph()
 
-     pso = PSO(graph, iterations=40, size_population=40, beta=beta, alfa=alpha)
+     pso = PSO(graph, iterations=it, size_population=100, beta=beta, alfa=alpha)
      pso.run() 
 
      pso.showsParticles()
@@ -358,8 +415,9 @@ def main(beta,alpha):
      final_route=[]
      final_route=pso.getGBest().getPBest()
      
-     penaltycost=calculatefinal(final_route,customerno-1)
+     cost=calculatefinal(final_route,customerno-1)
      
     
      print("AND THE FINAL COST FOR OUR SOLUTION IS")
-     print(penaltycost+pso.getGBest().getCostPBest())
+     print(cost)
+     
