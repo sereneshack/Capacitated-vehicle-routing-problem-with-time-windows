@@ -1,33 +1,57 @@
+import pso3
+import ga3
+import aco
+import hybridfinal
+import time
 import plotfile
-import pso2
-import ga2
-import abc2
-print("Enter algorithm")
+print("-----CAPACITATED VEHICLE ROUTING PROBLEM WITH TIME WINDOWS-----")
+print("\n")
+print("--Welcome to our delivery system")
+print("\n")
+print("The maximum number of vehicles we support are 20")
+print("The capacity for each vehicle is 200 units")
+print("\n")
+print("\n")
+print("\n")
+print("THE ALGORITHMS ARE: GA,PSO,ACO,HYBRIDACOPSO,GAHYBRID")
+print("Please enter algorithm with which you would like to continue:")
 algo=raw_input()
 
+time_start = time.clock()
 
-if(algo=="pso"):
- print("enter alpha")
+if(algo=="pso"): 
+ print("enter alpha  0<alpha<1")
  alpha=input()
- print("enter beta")
+ print("enter beta  0<beta<1")
  beta=input()
-
-
- pso2.main(beta,alpha)
+ print("enter Iterations")
+ it=input()
+ pso3.main(beta,alpha,it)
 
 elif(algo=="ga"):
  print("enter generations")
  generations=input()
+ ga3.main(generations)
 
- ga2.main(generations)
-
-elif(algo=="abc"):
+elif(algo=="aco"):
  print("enter colony size")
  colonysize=input()
  print("enter steps")
  steps=input()
- abc2.main(colonysize,steps)
-
+ aco.main(colonysize,steps)
 
 elif(algo=="plot"):
  plotfile.main()
+
+elif(algo=="hybridacopso"):
+ print("enter colony size")
+ colonysize=input()
+ print("enter steps")
+ steps=input()
+ hybridfinal.main(colonysize,steps)
+
+time_elapsed = (time.clock() - time_start) 
+print("The time elapsed for our code is:")
+print(time_elapsed)
+
+
